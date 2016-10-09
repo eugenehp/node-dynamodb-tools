@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 10;
 const DIRNAME = 'export';
 
 module.exports = function(dynamodb, tableName, status, directory, cb){
@@ -30,7 +30,7 @@ module.exports = function(dynamodb, tableName, status, directory, cb){
               tableStatus = status.addItem(tableName, { max: parseInt(tableCount) });
         
               var params = {
-                TableName: 'accesstokens',
+                TableName: tableName,
                 Select: 'ALL_ATTRIBUTES',
                 Limit: PAGE_SIZE,
               };

@@ -1,0 +1,7 @@
+{
+  "region": "us-west-1",
+  "sslEnabled": true,
+  "maxRetries": 10,
+  "accessKeyId": "accessKeyId",
+  "secretAccessKey": "secretAccessKey"
+}

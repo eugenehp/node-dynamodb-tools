@@ -1,12 +1,18 @@
+var AWS = require("aws-sdk");
 var async = require('async');
 var status = require('node-status');
 var exportTable = require("./export_table");
 
 const PAGE_SIZE = 100;
 
-module.exports = function(dynamodb){
+module.exports = function(configFile){
+
+  AWS.config.loadFromPath(configFile);
+  var dynamodb = new AWS.DynamoDB();
 
   getTables(dynamodb, [], {}, function(err, tables){
+
+    tables = [ tables[0], tables[1], tables[2] ]
 
     var pattern = "  Exporting tables: {uptime}  |  {spinner.cyan}";
     for( i in tables)
@@ -18,9 +24,8 @@ module.exports = function(dynamodb){
       pattern: pattern
     });
 
-
     async.mapSeries(tables, exportTableWrapper, function(err, results){
-      console.log('RESULTS', err, results);
+      // console.log('RESULTS', err, results);
 
       setTimeout(function(){
           status.stop();
@@ -34,7 +39,6 @@ module.exports = function(dynamodb){
     exportTable(dynamodb, tableName, status, __dirname, cb);
   }
 }
-
 
 
 function getTables(dynamodb, tables, params, cb){
