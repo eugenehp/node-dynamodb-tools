@@ -1,6 +1,5 @@
 var AWS = require("aws-sdk");
 var status = require('node-status');
-var path = require("path");
 var exportTable = require("./export_table");
 
 AWS.config.loadFromPath('./config.export.json');
@@ -19,7 +18,7 @@ dynamodb.listTables(params, function(err, data) {
 var tableName = 'accesstokens';
 exportTable(dynamodb, tableName, status, __dirname, function(err, data){
   status.stop();
-  console.log('\n')
+  console.log('\n');
 });
 
 status.start({
