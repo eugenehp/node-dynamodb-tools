@@ -9,4 +9,4 @@ exportDatabase('./config.export.json');
 
 ![Exporting in console](export.gif?raw=true "Exporting in console")
 
-
+## [License](/LICENSE.md)
