@@ -1,3 +1,4 @@
 node_modules/**
 config.export.json
+config.import.json
 export/**
