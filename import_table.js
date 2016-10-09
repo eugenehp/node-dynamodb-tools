@@ -64,6 +64,9 @@ module.exports = function(dynamodb, tableName, status, cb){
       if( GlobalSecondaryIndexes.ProvisionedThroughput.hasOwnProperty('NumberOfDecreasesToday') )
         delete GlobalSecondaryIndexes.ProvisionedThroughput.NumberOfDecreasesToday;
 
+      if( GlobalSecondaryIndexes.ProvisionedThroughput.hasOwnProperty('LastDecreaseDateTime') )
+        delete GlobalSecondaryIndexes.ProvisionedThroughput.LastDecreaseDateTime;
+
       params.GlobalSecondaryIndexes[i] = GlobalSecondaryIndexes;
       
     }
@@ -71,6 +74,14 @@ module.exports = function(dynamodb, tableName, status, cb){
   // console.log( JSON.stringify(params, null, '\t') );
 
   dynamodb.createTable(params, function(err, data) {
+    /*console.log('=====================');
+    console.log('=====createTable=====');
+    console.log('=====================');
+    console.log(err);
+    console.log(data);
+    console.log('=====================');
+    console.log('=====================');
+    console.log('=====================');*/
     // if (err) console.log(err, err.stack); // an error occurred
     // else     console.log(data);           // successful response
     // if(err) {

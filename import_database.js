@@ -29,17 +29,25 @@ module.exports = function(configFile){
       });
 
       for(i in tables){
-        var tableName = tables[i];
-        importTable(dynamodb, tableName, status, function(err, data){
-          // console.log('importTable', err, data);
-          tablesCounter++;
+        (function(i){
 
-          if( tablesCounter == tables.length)
-            setTimeout(function(){
-                status.stop();
-                console.log('\n');
-            }, 500);
-        });
+          var tableName = tables[i];
+          
+          setTimeout(function(){
+
+            importTable(dynamodb, tableName, status, function(err, data){
+              // console.log('importTable', err, data);
+              tablesCounter++;
+
+              if( tablesCounter == tables.length)
+                setTimeout(function(){
+                    status.stop();
+                    console.log('\n');
+                }, 500);
+            })
+          }, i * 1000);
+
+        })(i);
       }
 
     }
