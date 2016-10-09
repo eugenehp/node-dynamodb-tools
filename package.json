@@ -1,13 +1,13 @@
 {
-  "name": "dynamodb",
+  "name": "node-dynamodb-tools",
   "version": "1.0.0",
-  "description": "",
+  "description": "Export/Import tools for DynamoDB",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Eugene Hauptmann <e@eugenehp.de>",
+  "license": "MIT",
   "dependencies": {
     "async": "^2.0.1",
     "aws-sdk": "^2.6.7",
