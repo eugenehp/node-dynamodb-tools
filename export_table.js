@@ -63,12 +63,9 @@ function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fil
       if( counter == tableCount ) {
         var json = JSON.stringify( data.Items, null, '\t' );
         json = json.slice(2, json.length - 2 );
+        json += '\n]';
 
         fs.appendFile(fileName, json, function(err){
-          if(err) { cb(err) }
-        });
-
-        fs.appendFile(fileName, '\n]', function(err){
           if(err) { cb(err) }
           else{
             // TODO: add JSONLint here

@@ -1,7 +1,5 @@
 var fs = require("fs");
 var path = require("path");
-var StreamArray = require("stream-json/utils/StreamArray");
-var stream = StreamArray.make();
 
 const PAGE_SIZE = 10;
 const DIRNAME = 'export';
@@ -75,9 +73,9 @@ module.exports = function(dynamodb, tableName, status, cb){
   dynamodb.createTable(params, function(err, data) {
     // if (err) console.log(err, err.stack); // an error occurred
     // else     console.log(data);           // successful response
-    if(err) {
-      cb(err)
-    }else{
+    // if(err) {
+      // cb(err)
+    // }else{
       var waitForParams = {
         TableName: tableName
       };
@@ -86,10 +84,21 @@ module.exports = function(dynamodb, tableName, status, cb){
           cb(err)
         }else{
           tableStatus = status.addItem(tableName, { max: parseInt(tableCount) });
-          importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb);
+
+          var stats = fs.statSync(fileName)
+          var fileSizeInBytes = parseInt(stats["size"]);
+          
+          // console.log(tableName, fileName, fileSizeInBytes)
+          if( fileSizeInBytes < 100){
+            tableStatus.inc();
+            cb(null, fileName);
+          }else{
+            importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb);
+          }
+
         }
       });
-    }
+    // }
   });
 
 }
@@ -97,6 +106,8 @@ module.exports = function(dynamodb, tableName, status, cb){
 function importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb){
   var counter = 0;
   var functionCounter = 0;
+  var StreamArray = require("stream-json/utils/StreamArray");
+  var stream = StreamArray.make();
 
   stream.output.on("data", function(object){
     // console.log(object.index, object.value);
@@ -126,9 +137,13 @@ function importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb){
 
   });
 
+  /*stream.output.on("error", function(err){
+    cb(err);
+  });*/
+
   // stream.output.on("end", function(){
   //   console.log("done");
   // });
-   
+
   fs.createReadStream(fileName).pipe(stream.input);
 }
