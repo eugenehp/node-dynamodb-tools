@@ -11,6 +11,7 @@
   "dependencies": {
     "async": "^2.0.1",
     "aws-sdk": "^2.6.7",
+    "jsonlint": "^1.6.2",
     "node-status": "^1.0.0",
     "stream-json": "^0.4.2"
   }

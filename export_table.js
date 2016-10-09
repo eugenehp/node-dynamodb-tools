@@ -61,6 +61,13 @@ function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fil
       tableStatus.inc( delta );
 
       if( counter == tableCount ) {
+        var json = JSON.stringify( data.Items, null, '\t' );
+        json = json.slice(2, json.length - 2 );
+
+        fs.appendFile(fileName, json, function(err){
+          if(err) { cb(err) }
+        });
+
         fs.appendFile(fileName, '\n]', function(err){
           if(err) { cb(err) }
           else{
@@ -73,8 +80,8 @@ function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fil
         var json = JSON.stringify( data.Items, null, '\t' );
         json = json.slice(2, json.length - 2 )
 
-        if( tableCount - counter >= PAGE_SIZE )
-          json += ',\n';
+        // if( tableCount - counter >= PAGE_SIZE )
+        json += ',\n';
         
         fs.appendFile(fileName, json, function(err){
           if(err) { cb(err) }

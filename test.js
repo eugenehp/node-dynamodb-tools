@@ -1,12 +1,15 @@
-var makeSource = require("stream-json");
-var source = makeSource();
- 
 var fs = require("fs");
  
-var objectCounter = 0;
-source.on("startObject", function(){ ++objectCounter; });
-source.on("end", function(){
-    console.log("Found ", objectCounter, " objects.");
+var StreamArray = require("stream-json/utils/StreamArray");
+var stream = StreamArray.make();
+ 
+// Example of use: 
+ 
+stream.output.on("data", function(object){
+  console.log(object.index, object.value);
+});
+stream.output.on("end", function(){
+  console.log("done");
 });
  
-fs.createReadStream("export/accesstokens.json").pipe(source.input);
+fs.createReadStream("export/accesstokens.json").pipe(stream.input);
