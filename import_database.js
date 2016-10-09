@@ -28,15 +28,16 @@ module.exports = function(configFile){
         pattern: pattern
       });
 
+      var console = status.console();
+
       for(i in tables){
         (function(i){
 
-          var tableName = tables[i];
-          
           setTimeout(function(){
-
+            var tableName = tables[i];
             importTable(dynamodb, tableName, status, function(err, data){
-              // console.log('importTable', err, data);
+              if(err)
+                console.log('Error during importing', tableName, err/*, data*/);
               tablesCounter++;
 
               if( tablesCounter == tables.length)

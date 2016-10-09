@@ -6,6 +6,9 @@ const DIRNAME = 'export';
 
 module.exports = function(dynamodb, tableName, status, cb){
 
+  /*var console = status.console()
+  console.log('import_table', tableName);*/
+
   var tableDescription = {};
   var tableStatus = null;
 
@@ -144,7 +147,7 @@ function importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb){
             cb(null,fileName);
         }
       });
-    }, functionCounter * 50);
+    }, functionCounter * 100);
 
   });
 
