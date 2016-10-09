@@ -1,5 +1,7 @@
 var fs = require("fs");
 var path = require("path");
+var StreamArray = require("stream-json/utils/StreamArray");
+var stream = StreamArray.make();
 
 const PAGE_SIZE = 10;
 const DIRNAME = 'export';
@@ -7,14 +9,17 @@ const DIRNAME = 'export';
 module.exports = function(dynamodb, tableName, status, cb){
 
   var tableDescription = {};
+  var tableStatus = null;
 
   var dir = __dirname + '/' + DIRNAME + '/';
   var fileName = dir + tableName + '.json';
   var fileNameDescription = dir + tableName + '.description.json';
+  var tableCount = -1;
 
   tableDescription = fs.readFileSync(fileNameDescription, 'UTF8');
   // console.log('tableDescription',tableDescription);
   tableDescription = JSON.parse(tableDescription);
+  tableCount = parseInt( tableDescription.Table.ItemCount );
   
   var fileParams = tableDescription.Table;
 
@@ -68,8 +73,62 @@ module.exports = function(dynamodb, tableName, status, cb){
   // console.log( JSON.stringify(params, null, '\t') );
 
   dynamodb.createTable(params, function(err, data) {
-    if (err) console.log(err, err.stack); // an error occurred
-    else     console.log(data);           // successful response
+    // if (err) console.log(err, err.stack); // an error occurred
+    // else     console.log(data);           // successful response
+    if(err) {
+      cb(err)
+    }else{
+      var waitForParams = {
+        TableName: tableName
+      };
+      dynamodb.waitFor('tableExists', waitForParams, function(err, data) {
+        if(err){
+          cb(err)
+        }else{
+          tableStatus = status.addItem(tableName, { max: parseInt(tableCount) });
+          importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb);
+        }
+      });
+    }
   });
 
+}
+
+function importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb){
+  var counter = 0;
+  var functionCounter = 0;
+
+  stream.output.on("data", function(object){
+    // console.log(object.index, object.value);
+    var params = {};
+    params.Item = object.value;
+    params.TableName = tableName;
+
+    functionCounter++;
+
+    setTimeout(function(){
+      // console.log(params.Item.id.S);
+      // TODO: manage Capacity Throughput here
+      // Otherwise it will give an error
+      // <ProvisionedThroughputExceededException: The level of configured provisioned throughput for the table was exceeded. Consider increasing your provisioning level with the UpdateTable API.>
+      dynamodb.putItem(params, function(err, data) {
+        if(err){
+          cb(err);
+        }else{
+          counter++;
+          // console.log('putItem',counter,tableCount);
+          tableStatus.inc();
+          if(counter == tableCount)
+            cb(null,fileName);
+        }
+      });
+    }, functionCounter * 50);
+
+  });
+
+  // stream.output.on("end", function(){
+  //   console.log("done");
+  // });
+   
+  fs.createReadStream(fileName).pipe(stream.input);
 }

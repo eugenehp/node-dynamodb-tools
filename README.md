@@ -40,4 +40,6 @@ var importDatabase = require("./import_database");
 importDatabase('./config.import.json');
 ```
 
+![Importing in console](import.gif?raw=true "Importing in console")
+
 ## [License](/LICENSE.md)
