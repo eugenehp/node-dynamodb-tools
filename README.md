@@ -1,4 +1,4 @@
-=== Export/Import tools for DynamoDB
+# Export/Import tools for DynamoDB
 
 ## Export
 
