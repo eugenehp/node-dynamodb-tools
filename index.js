@@ -17,8 +17,11 @@ dynamodb.listTables(params, function(err, data) {
 
 var tableName = 'accesstokens';
 exportTable(dynamodb, tableName, status, __dirname, function(err, data){
-  status.stop();
-  console.log('\n');
+  setTimeout(function(){
+    status.stop();
+    console.log('\n');
+  }, 500);
+  
 });
 
 status.start({

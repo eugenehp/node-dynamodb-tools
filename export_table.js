@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 100;
 const DIRNAME = 'export';
 
 module.exports = function(dynamodb, tableName, status, directory, cb){
@@ -24,7 +24,7 @@ module.exports = function(dynamodb, tableName, status, directory, cb){
 
         var tableDescriptionString = JSON.stringify( tableDescription, null, '\t');
 
-        fs.writeFile(fileNameDescription, tableDescriptionString, function writeFileCallback(err) {
+        fs.writeFile(fileNameDescription, tableDescriptionString, function writeTableDescriptionToFileCallback(err) {
             if(err) { cb(err) }
             else{
               tableStatus = status.addItem(tableName, { max: parseInt(tableCount) });
@@ -35,27 +35,54 @@ module.exports = function(dynamodb, tableName, status, directory, cb){
                 Limit: PAGE_SIZE,
               };
 
-              read(dynamodb, params, counter, tableCount, tableStatus, fileName, cb);
+              fs.writeFile(fileName, '[\n', function startWritingToTableFile(err){
+                if(err) { cb(err) }
+                else{
+                  var firstTime = true;
+                  read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, cb);
+                }
+              }); // end startWritingToTableFile
+              
             }
-        }); // end writeFileCallback
+        }); // end writeTableDescriptionToFileCallback
       }
   }); // end describeTable
 
 }
 
 
-function read(dynamodb, params, counter, tableCount, tableStatus, fileName, cb){
+function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, cb){
   dynamodb.scan(params, function(err, data) {
     if(err) { cb(err) }
     else {
-      counter += data.Items.length;
-      tableStatus.inc(params.Limit);
+      var delta = data.Items.length;
+      counter += delta;
+      // console.log(delta);
+      tableStatus.inc( delta );
 
       if( counter == tableCount ) {
-        if(typeof cb == 'function') cb(null);
+        fs.appendFile(fileName, '\n]', function(err){
+          if(err) { cb(err) }
+          else{
+            if(typeof cb == 'function') cb(null);
+          }
+        });
       } else if (data.LastEvaluatedKey) {
+
+        var json = JSON.stringify( data.Items, null, '\t' );
+        json = json.slice(2, json.length - 2 )
+
+        if( delta < PAGE_SIZE )
+          json += ',\n';
+        
+        fs.appendFile(fileName, json, function(err){
+          if(err) { cb(err) }
+        });
+
         params.ExclusiveStartKey = data.LastEvaluatedKey;
-        read(dynamodb, params, counter, tableCount, tableStatus, fileName, cb);
+        firstTime = false;
+
+        read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, cb);
       }
     }
   });
