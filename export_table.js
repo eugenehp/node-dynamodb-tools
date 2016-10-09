@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 100;
 const DIRNAME = 'export';
 
 module.exports = function(dynamodb, tableName, status, directory, cb){
@@ -64,6 +64,7 @@ function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fil
         fs.appendFile(fileName, '\n]', function(err){
           if(err) { cb(err) }
           else{
+            // TODO: add JSONLint here
             if(typeof cb == 'function') cb(null);
           }
         });
@@ -72,7 +73,7 @@ function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fil
         var json = JSON.stringify( data.Items, null, '\t' );
         json = json.slice(2, json.length - 2 )
 
-        if( delta < PAGE_SIZE )
+        if( tableCount - counter >= PAGE_SIZE )
           json += ',\n';
         
         fs.appendFile(fileName, json, function(err){

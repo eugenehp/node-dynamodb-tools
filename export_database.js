@@ -12,8 +12,6 @@ module.exports = function(configFile){
 
   getTables(dynamodb, [], {}, function(err, tables){
 
-    tables = [ tables[0], tables[1], tables[2] ]
-
     var pattern = "  Exporting tables: {uptime}  |  {spinner.cyan}";
     for( i in tables)
       pattern += "  | "+tables[i]+"  {"+tables[i]+".green.bar}";
