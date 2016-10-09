@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.0.1",
     "aws-sdk": "^2.6.7",
     "node-status": "^1.0.0"
   }
