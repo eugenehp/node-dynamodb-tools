@@ -43,7 +43,7 @@ module.exports = function(configFile){
               if( tablesCounter == tables.length)
                 setTimeout(function(){
                     status.stop();
-                    console.log('\n');
+                    console.log('\n\n');
                 }, 500);
             })
           }, i * 1000);

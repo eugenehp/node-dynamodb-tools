@@ -147,7 +147,7 @@ function importData(dynamodb, fileName, tableName, tableCount, tableStatus, cb){
             cb(null,fileName);
         }
       });
-    }, functionCounter * 100);
+    }, functionCounter * 1000);
 
   });
 

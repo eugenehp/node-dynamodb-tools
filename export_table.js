@@ -25,6 +25,7 @@ module.exports = function(dynamodb, tableName, status, directory, cb){
         var tableDescriptionString = JSON.stringify( tableDescription, null, '\t');
 
         fs.writeFile(fileNameDescription, tableDescriptionString, function writeTableDescriptionToFileCallback(err) {
+          // console.log('writeTableDescriptionToFileCallback',err);
             if(err) { cb(err) }
             else{
               tableStatus = status.addItem(tableName, { max: parseInt(tableCount) });
@@ -39,7 +40,7 @@ module.exports = function(dynamodb, tableName, status, directory, cb){
                 if(err) { cb(err) }
                 else{
                   var firstTime = true;
-                  read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, cb);
+                  read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, tableName, cb);
                 }
               }); // end startWritingToTableFile
               
@@ -51,16 +52,19 @@ module.exports = function(dynamodb, tableName, status, directory, cb){
 }
 
 
-function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, cb){
-  dynamodb.scan(params, function(err, data) {
+function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, tableName, cb){
+  dynamodb.scan(params, function DynamoDBScanCallback(err, data) {
+    // console.log('DynamoDBScanCallback', JSON.stringify(data, null, '\t') );
     if(err) { cb(err) }
     else {
       var delta = data.Items.length;
       counter += delta;
       // console.log(delta);
+      // console.log('counter', counter, tableCount);
       tableStatus.inc( delta );
 
-      if( counter == tableCount ) {
+
+      if( counter >= tableCount || delta == 0 ) {
         var json = JSON.stringify( data.Items, null, '\t' );
         json = json.slice(2, json.length - 2 );
         json += '\n]';
@@ -69,7 +73,8 @@ function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fil
           if(err) { cb(err) }
           else{
             // TODO: add JSONLint here
-            if(typeof cb == 'function') cb(null);
+            // if(typeof cb == 'function') cb(null);
+            if(typeof cb == 'function') cb( null, [tableName, counter, tableCount].join(' ') );
           }
         });
       } else if (data.LastEvaluatedKey) {
@@ -87,7 +92,7 @@ function read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fil
         params.ExclusiveStartKey = data.LastEvaluatedKey;
         firstTime = false;
 
-        read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, cb);
+        read(dynamodb, params, firstTime, counter, tableCount, tableStatus, fileName, tableName, cb);
       }
     }
   });

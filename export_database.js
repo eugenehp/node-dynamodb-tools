@@ -10,20 +10,23 @@ module.exports = function(configFile){
   AWS.config.loadFromPath(configFile);
   var dynamodb = new AWS.DynamoDB();
 
+  console.log('Getting tables');
   getTables(dynamodb, [], {}, function(err, tables){
+
+    console.log(tables);
 
     var pattern = "  Exporting tables: {uptime}  |  {spinner.cyan}";
     for( i in tables)
       pattern += "  | "+tables[i]+"  {"+tables[i]+".green.bar}";
 
-    status.start({
+    /*status.start({
       // invert: true,
       interval: 200,
       pattern: pattern
-    });
+    });*/
 
     async.mapSeries(tables, exportTableWrapper, function(err, results){
-      // console.log('RESULTS', err, results);
+      console.log('RESULTS', err, results);
 
       setTimeout(function(){
           status.stop();
@@ -34,6 +37,7 @@ module.exports = function(configFile){
   });
 
   function exportTableWrapper(tableName, cb){
+    // console.log('exportTableWrapper',tableName);
     exportTable(dynamodb, tableName, status, __dirname, cb);
   }
 }
