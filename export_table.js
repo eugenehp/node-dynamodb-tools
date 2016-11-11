@@ -17,6 +17,8 @@ module.exports = function(dynamodb, tableName, status, directory, cb){
   dynamodb.describeTable(
     {TableName: tableName}, 
     function describeTableCallback(err, _tableDescription){
+      // console.log('describeTableCallback', err, JSON.stringify(_tableDescription, null, '\t') );
+
       if(err) { cb(err) }
       else {
         tableDescription = _tableDescription;
