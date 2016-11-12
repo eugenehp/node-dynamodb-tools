@@ -23,7 +23,7 @@ getTables(dynamodb, [], {}, PAGE_SIZE, function(err, tables){
   yesno.ask("Are you sure you want to remove all tables?", null, handleResponse);
 
   function handleResponse(ok){
-
+    console.log('\r\n');
     if(tables.length)
     async.mapSeries(tables, deleteTableWrapper, function(err, results){
       console.log('RESULTS', err, results);

@@ -30,14 +30,26 @@ module.exports = function(configFile){
 
       var console = status.console();
 
-      for(i in tables){
+      async.mapSeries(tables, importTableWrapper, function importAllTablesCB(err, results){
+        console.log('importAllTablesCB', err, results);
+        setTimeout(function(){
+            status.stop();
+            console.log('\n\n');
+        }, 500);
+      });
+
+      function importTableWrapper(tableName, cb){
+        importTable(dynamodb, tableName, status, cb);
+      }
+
+      /*for(i in tables){
         (function(i){
 
           setTimeout(function(){
             var tableName = tables[i];
             importTable(dynamodb, tableName, status, function(err, data){
               if(err)
-                console.log('Error during importing', tableName, err/*, data*/);
+                console.log('Error during importing', tableName, err, data);
               tablesCounter++;
 
               if( tablesCounter == tables.length)
@@ -49,7 +61,7 @@ module.exports = function(configFile){
           }, i * 1000);
 
         })(i);
-      }
+      }*/
 
     }
 
