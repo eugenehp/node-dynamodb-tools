@@ -31,7 +31,7 @@ var exportDatabase = require("./export_database");
 exportDatabase('./config.export.json');
 ```
 
-![Exporting in console](export.gif?raw=true "Exporting in console")
+![Exporting in console](images/export.gif?raw=true "Exporting in console")
 
 ## Import
 
@@ -40,6 +40,6 @@ var importDatabase = require("./import_database");
 importDatabase('./config.import.json');
 ```
 
-![Importing in console](import.gif?raw=true "Importing in console")
+![Importing in console](images/import.gif?raw=true "Importing in console")
 
 ## [License](/LICENSE.md)

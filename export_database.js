@@ -2,6 +2,7 @@ var AWS = require("aws-sdk");
 var async = require('async');
 var status = require('node-status');
 var exportTable = require("./export_table");
+var getTables = require('./getTables');
 
 const PAGE_SIZE = 100;
 
@@ -11,7 +12,7 @@ module.exports = function(configFile){
   var dynamodb = new AWS.DynamoDB();
 
   console.log('Getting tables');
-  getTables(dynamodb, [], {}, function(err, tables){
+  getTables(dynamodb, [], {}, PAGE_SIZE, function(err, tables){
 
     console.log(tables);
 
@@ -40,23 +41,4 @@ module.exports = function(configFile){
     // console.log('exportTableWrapper',tableName);
     exportTable(dynamodb, tableName, status, __dirname, cb);
   }
-}
-
-
-function getTables(dynamodb, tables, params, cb){
-  params.Limit = PAGE_SIZE;
-
-  dynamodb.listTables(params, function(err, data) {
-    if (err) {
-      cb(err)
-    } else if (data.LastEvaluatedTableName){
-      params.ExclusiveStartTableName = data.LastEvaluatedTableName;
-
-      tables = tables.concat( data.TableNames );
-      getTables(dynamodb, tables, params, cb);
-    }else {
-      tables = tables.concat( data.TableNames );
-      cb( null, tables );
-    }
-  });
 }
