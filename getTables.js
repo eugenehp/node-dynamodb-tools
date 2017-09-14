@@ -1,17 +1,19 @@
-module.exports = function(dynamodb, tables, params, pageSize, cb){
-  params.Limit = pageSize;
+module.exports = getTables;
 
-  dynamodb.listTables(params, function(err, data) {
-    if (err) {
-      cb(err)
-    } else if (data.LastEvaluatedTableName){
-      params.ExclusiveStartTableName = data.LastEvaluatedTableName;
+function getTables(dynamodb, tables, params, pageSize, cb) {
+    params.Limit = pageSize;
 
-      tables = tables.concat( data.TableNames );
-      getTables(dynamodb, tables, params, pageSize, cb);
-    }else {
-      tables = tables.concat( data.TableNames );
-      cb( null, tables );
-    }
-  });
+    dynamodb.listTables(params, function (err, data) {
+        if (err) {
+            cb(err)
+        } else if (data.LastEvaluatedTableName) {
+            params.ExclusiveStartTableName = data.LastEvaluatedTableName;
+
+            tables = tables.concat(data.TableNames);
+            getTables(dynamodb, tables, params, pageSize, cb);
+        } else {
+            tables = tables.concat(data.TableNames);
+            cb(null, tables);
+        }
+    });
 }
